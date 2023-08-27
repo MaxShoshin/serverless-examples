@@ -1,0 +1,3 @@
+name: FuncsDeploy
+runtime: dotnet
+description: Pulumi deploy for Yandex Cloud Functions (example).
