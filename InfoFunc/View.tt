@@ -1,0 +1,290 @@
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="Humanizer.Bytes"#>
+<#@ import namespace="YandexCloud.Examples.CloudFunctions.Info" #>
+<html lang="">
+<head>
+    <title>Function VM Information</title>
+    <style>
+
+        p {
+            color: rgba(48, 69, 92, 0.8);
+            position: relative;
+            overflow: hidden;
+            max-height: 800px;
+            opacity: 1;
+            transform: translate(0, 0);
+            margin-top: 14px;
+            z-index: 2;
+        }
+
+        pre {
+            color: rgba(48, 69, 92, 0.8);
+            position: relative;
+            overflow: hidden;
+            max-height: 800px;
+            opacity: 1;
+            transform: translate(0, 0);
+            margin-top: 14px;
+            z-index: 2;
+        }
+
+        ul {
+            list-style: none;
+            perspective: 900;
+            padding: 0;
+            margin: 0;
+        }
+        ul li {
+            position: relative;
+            padding: 0;
+            margin: 0;
+            border-top: 1px dotted #dce7eb;
+        }
+        ul li:nth-of-type(1) {
+            animation-delay: 0.5s;
+        }
+        ul li:nth-of-type(2) {
+            animation-delay: 0.75s;
+        }
+        ul li:nth-of-type(3) {
+            animation-delay: 1s;
+        }
+        ul li:last-of-type {
+            padding-bottom: 0;
+        }
+        ul li i {
+            position: absolute;
+            transform: translate(-6px, 0);
+            margin-top: 16px;
+            right: 0;
+        }
+        ul li i:before, ul li i:after {
+            content: "";
+            position: absolute;
+            background-color: black;
+            width: 3px;
+            height: 9px;
+        }
+        ul li i:before {
+            transform: translate(-2px, 0) rotate(45deg);
+        }
+        ul li i:after {
+            transform: translate(2px, 0) rotate(-45deg);
+        }
+        ul li input[type=checkbox] {
+            position: absolute;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0;
+        }
+        ul li input[type=checkbox]:checked ~ p {
+            margin-top: 0;
+            max-height: 0;
+            opacity: 0;
+            transform: translate(0, 50%);
+        }
+        ul li input[type=checkbox]:checked ~ pre {
+            margin-top: 0;
+            max-height: 0;
+            opacity: 0;
+            transform: translate(0, 50%);
+        }
+        ul li input[type=checkbox]:checked ~ i:before {
+            transform: translate(2px, 0) rotate(45deg);
+        }
+        ul li input[type=checkbox]:checked ~ i:after {
+            transform: translate(-2px, 0) rotate(-45deg);
+        }
+
+        p span.value::after {
+            content: "\A";
+            white-space: pre;
+        }
+
+        p span.value{
+            color: black;
+        }
+
+
+        @keyframes flipdown {
+            0% {
+                opacity: 0;
+                transform-origin: top center;
+                transform: rotateX(-90deg);
+            }
+            5% {
+                opacity: 1;
+            }
+            80% {
+                transform: rotateX(8deg);
+            }
+            83% {
+                transform: rotateX(6deg);
+            }
+            92% {
+                transform: rotateX(-3deg);
+            }
+            100% {
+                transform-origin: top center;
+                transform: rotateX(0deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Function VM Information</h1>
+    <ul>
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>Request</h3>
+            <pre><#=Request #> </pre>
+            </li>
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>Environment variables</h3>
+            <p>
+<#
+foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
+        {
+#>
+            <span class="name"><#=entry.Key #> = </span><span class="value"><#=entry.Value?.ToString() ?? "(null)" #></span>
+<#        } #>
+            </p>
+        </li>
+
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>.NET Runtime</h3>
+            <p>
+                <span class="name">JitInfo: </span><span class="value"><#=EnvInfo.JitInfo#></span>
+                <span class="name">Architecture: </span><span class="value"><#=EnvInfo.Architecture #></span>
+                <span class="name">Configuration: </span><span class="value"><#=EnvInfo.Configuration #></span>
+                <span class="name">InDocker: </span><span class="value"><#=EnvInfo.InDocker #></span>
+                <span class="name">RuntimeVersion: </span><span class="value"><#=EnvInfo.RuntimeVersion #></span>
+                <span class="name">HardwareIntrinsicsShort: </span><span class="value"><#=EnvInfo.HardwareIntrinsicsShort #></span>
+                <span class="name">HasRyuJit: </span><span class="value"><#=EnvInfo.HasRyuJit #></span>
+                <span class="name">IsConcurrentGC: </span><span class="value"><#=EnvInfo.IsConcurrentGC #></span>
+                <span class="name">IsServerGC: </span><span class="value"><#=EnvInfo.IsServerGC #></span>
+            </p>
+        </li>
+
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>Environment class</h3>
+            <p>
+<#
+foreach (var (name, value) in GetEnvironmentProperties())
+        {
+#>
+            <span class="name"><#=name #> = </span><span class="value"><#=value #></span>
+<#        } #>
+            </p>
+        </li>
+
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>Memory</h3>
+            <p>
+                <span class="name">Available physical: </span><span class="value"><#= ByteSize.FromBytes(HardwareInfo.MemoryStatus.AvailablePhysical) #></span>
+                <span class="name">Available virtual: </span><span class="value"><#= ByteSize.FromBytes(HardwareInfo.MemoryStatus.AvailableVirtual) #></span>
+                <span class="name">Total physical: </span><span class="value"><#= ByteSize.FromBytes(HardwareInfo.MemoryStatus.TotalPhysical) #></span>
+                <span class="name">Total virtual: </span><span class="value"><#= ByteSize.FromBytes(HardwareInfo.MemoryStatus.TotalVirtual) #></span>
+                <span class="name">Available extended virtual: </span><span class="value"><#= ByteSize.FromBytes(HardwareInfo.MemoryStatus.AvailableExtendedVirtual) #></span>
+                <span class="name">Available page file: </span><span class="value"><#= ByteSize.FromBytes(HardwareInfo.MemoryStatus.AvailablePageFile) #></span>
+                <span class="name">Total page file: </span><span class="value"><#= ByteSize.FromBytes(HardwareInfo.MemoryStatus.TotalPageFile) #></span>
+                <br />
+                <#
+                if (HardwareInfo.MemoryList.Any())
+                {
+                    #>
+<span class="name">Memory banks:</span><span class="value"> </span>
+<#
+                    foreach (var ml in HardwareInfo.MemoryList)
+                    {
+                #>
+                <span class="value"><#=ml.ToString() #> </span>
+                <#
+                    }
+                }
+                #>
+            </p>
+        </li>
+
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>CPU</h3>
+            <p>
+<#
+                foreach (var cpu in HardwareInfo.CpuList)
+                {
+#>
+
+            <span class="name">Caption: </span><span class="value"><#= cpu.Caption #></span>
+            <span class="name">CurrentClockSpeed: </span><span class="value"><#= cpu.CurrentClockSpeed.ToString() #></span>
+            <span class="name">Description: </span><span class="value"><#= cpu.Description #></span>
+            <span class="name">L1InstructionCacheSize: </span><span class="value"><#= cpu.L1InstructionCacheSize.ToString() #></span>
+            <span class="name">L1DataCacheSize: </span><span class="value"><#= cpu.L1DataCacheSize.ToString() #></span>
+            <span class="name">L2CacheSize: </span><span class="value"><#= cpu.L2CacheSize.ToString() #></span>
+            <span class="name">L3CacheSize: </span><span class="value"><#= cpu.L3CacheSize.ToString() #></span>
+            <span class="name">Manufacturer: </span><span class="value"><#= cpu.Manufacturer #></span>
+            <span class="name">MaxClockSpeed: </span><span class="value"><#= cpu.MaxClockSpeed.ToString() #></span>
+            <span class="name">Name: </span><span class="value"><#= cpu.Name #></span>
+            <span class="name">NumberOfCores: </span><span class="value"><#= cpu.NumberOfCores #></span>
+            <span class="name">NumberOfLogicalProcessors: </span><span class="value"><#= cpu.NumberOfLogicalProcessors.ToString() #></span>
+            <span class="name">PercentProcessorTime: </span><span class="value"><#= cpu.PercentProcessorTime.ToString() #></span>
+            <span class="name">ProcessorId: </span><span class="value"><#= cpu.ProcessorId #></span>
+            <span class="name">SecondLevelAddressTranslationExtensions: </span><span class="value"><#=
+    cpu.SecondLevelAddressTranslationExtensions.ToString() #></span>
+            <span class="name">SocketDesignation: </span><span class="value"><#= cpu.SocketDesignation #></span>
+            <span class="name">VirtualizationFirmwareEnabled: </span><span class="value"><#= cpu.VirtualizationFirmwareEnabled.ToString() #></span>
+            <span class="name">VMMonitorModeExtensions: </span><span class="value"><#= cpu.VMMonitorModeExtensions.ToString() #></span>
+<br />
+
+                <#
+                }
+#>
+            </p>
+        </li>
+
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>Disk</h3>
+<pre><#= DiskInfo #></pre>
+        </li>
+
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>Network</h3>
+
+<#
+                foreach (var net in HardwareInfo.NetworkAdapterList)
+                {
+#>
+<pre><#=net.ToString() #></pre>
+<#
+                }
+#>
+
+        </li>
+
+        <li>
+            <input type="checkbox" checked />
+            <i></i>
+            <h3>Last logs</h3>
+<pre><#=Logs #></pre>
+        </li>
+
+    </ul>
+</body>
+</html>
