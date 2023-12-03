@@ -32,7 +32,7 @@ class Build : NukeBuild
     Project BuildProj => Solution.GetProject("_build");
     Project DeployProj => Solution.GetProject("PulumiDeploy");
 
-    string Rid = "ubuntu.18.04-x64";
+    string Rid = "linux-x64";
     AbsolutePath OutDir = RootDirectory / "out";
     AbsolutePath PublishDir => OutDir / "published";
 

@@ -14,12 +14,19 @@ public sealed class Handler
 
     public async Task<Response> FunctionHandler(JsonElement request)
     {
+        var releaseInfo =
+            "cat /etc/*release\n" +
+            ProcessOutput("cat", "/etc/*release") +
+            "\n\n lsb_release -a\n" +
+            ProcessOutput("lsb_release", "-a");
+
         var view = new View(
             JsonSerializer.Serialize(request, s_optIndented),
             GetHardwareInfo(),
             BenchmarkEnvironmentInfo.GetCurrent(),
             diskInfo: ProcessOutput("bash", "-c ls"),
-            await GetLogs(GetEnvironmentVariable("FUNC_NAME")));
+            await GetLogs(GetEnvironmentVariable("FUNC_NAME")),
+            releases: releaseInfo);
 
         return new Response(200, view.TransformText());
     }

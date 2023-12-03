@@ -6,7 +6,7 @@ namespace YandexCloud.Examples.CloudFunctions.Info;
 
 partial class View
 {
-    public View(string request, HardwareInfo hardwareInfo, BenchmarkEnvironmentInfo envInfo, string diskInfo, string logs)
+    public View(string request, HardwareInfo hardwareInfo, BenchmarkEnvironmentInfo envInfo, string diskInfo, string logs, string releases)
     {
         Request = request;
         HardwareInfo = hardwareInfo;
@@ -14,6 +14,7 @@ partial class View
 
         DiskInfo = diskInfo;
         Logs = logs;
+        Releases = releases;
     }
 
     private BenchmarkEnvironmentInfo EnvInfo { get; }
@@ -23,6 +24,8 @@ partial class View
     private string DiskInfo { get; }
 
     private string Logs { get; }
+
+    public string Releases { get; }
 
     private HardwareInfo HardwareInfo { get; }
 

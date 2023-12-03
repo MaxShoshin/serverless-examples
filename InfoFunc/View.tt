@@ -285,6 +285,13 @@ foreach (var (name, value) in GetEnvironmentProperties())
 <pre><#=Logs #></pre>
         </li>
 
+        <li>
+           <input type="checkbox" checked />
+           <i></i>
+           <h3>Release info</h3>
+<pre><#=Releases #></pre>
+        </li>
+
     </ul>
 </body>
 </html>

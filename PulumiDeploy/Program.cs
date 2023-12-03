@@ -132,7 +132,7 @@ public static class Program
                         BucketName = funcSources.Bucket,
                         ObjectName = funcSources.Key,
                     },
-                    Runtime = "dotnet6",
+                    Runtime = "dotnet8",
                     ExecutionTimeout = "5",
                     UserHash = hash,
                     Entrypoint = entrypoint,

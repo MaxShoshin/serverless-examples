@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>YandexCloud.Examples.CloudFunctions.Info</RootNamespace>
     </PropertyGroup>
-    
+
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <DebugType>None</DebugType>
         <DebugSymbols>False</DebugSymbols>
     </PropertyGroup>
-    
+
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.13.6" />
       <PackageReference Include="ByteSize" Version="2.1.1" />
